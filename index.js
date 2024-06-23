@@ -91,7 +91,7 @@ async function handleRequest(request) {
 
   const iconRes = new Response(icon.body)
 
-  iconRes.headers.set('Cache-Control', 'max-age=86400')
+  iconRes.headers.set('Cache-Control', 'public,max-age=604800')
   iconRes.headers.set('Content-Type', icon.headers.get('content-type'))
 
   return iconRes
