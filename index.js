@@ -6,10 +6,12 @@ const defaultIconSvg = `<svg viewBox="0 0 20 20"><path fill="currentColor" d="M5
 
 async function handleRequest(request) {
   const init = {
-    headers: {
-      'content-type': 'text/html;charset=UTF-8',
-    },
     redirect: 'follow',
+    headers: request.headers,
+    cf: {
+      cacheTtl: 604800,
+      cacheEverything: true,
+    },
   }
   let requestURL = new URL(request.url)
 
@@ -46,7 +48,13 @@ async function handleRequest(request) {
   await newResponse.text()
 
   if (!favicon) {
-    const fav = await fetch(targetURL.origin + '/favicon.ico')
+    const fav = await fetch(targetURL.origin + '/favicon.ico', {
+			headers: request.headers,
+			cf: {
+				cacheTtl: 604800,
+				cacheEverything: true,
+			},
+		})
     if (fav.status === 200) {
       const resss = new Response(fav.body, { headers: fav.headers })
       resss.headers.set('Cache-Control', 'max-age=86400')
@@ -73,7 +81,13 @@ async function handleRequest(request) {
     return ic
   }
 
-  let icon = await fetch(favicon)
+  let icon = await fetch(favicon, {
+    headers: request.headers,
+    cf: {
+      cacheTtl: 604800,
+      cacheEverything: true,
+    },
+  })
 
   if (favicon.includes(svgFavicon)) {
     return new Response(decodeURI(favicon.split(svgFavicon)[1]), {
@@ -86,7 +100,13 @@ async function handleRequest(request) {
   const ct = icon.headers.get('content-type')
 
   if (ct.includes('application') || ct.includes('text')) {
-    icon = await fetch(`https://www.google.com/s2/favicons?domain=${url}`)
+    icon = await fetch(`https://www.google.com/s2/favicons?domain=${url}`, {
+			headers: request.headers,
+			cf: {
+				cacheTtl: 604800,
+				cacheEverything: true,
+			},
+		})
   }
 
   const iconRes = new Response(icon.body)
